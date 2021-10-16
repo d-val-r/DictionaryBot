@@ -21,12 +21,9 @@ def request_word(word, url, key):
     # transform the API return value into a managable format
     raw = str(requests.get(url.format(word, key)).text)
 
-    # get the data and transform it into a more usble form
-    raw = str(requests.get(url.format(word, key)).text)
     json_data = read_json(raw)
+
     df = DataFrame(json_data)
-    
-    # there was a response for the word, in which case, get the definitions
 
     # short definitions are located at the bottom of the dataframe
     # in a cell labeled 'shortdef'
@@ -36,11 +33,6 @@ def request_word(word, url, key):
                 response.append(part)
             response.append("\n")
 
-    # there was no definition, meaning the API returned suggested spellings,
-    # or nothing
-    except:
-
-        # the API returned suggested spellings
     # the user entered a mispelled word or a word that doesn't exist
     except:
 
@@ -55,26 +47,23 @@ def request_word(word, url, key):
             if len(response) > 10:
                 response = response[:10]
 
-        # there was nothing to return
         # there are no suggested spellings
         except:
             response.append("Merriam-Webster has no entry for this word.")
-
     return response
 
 
 # start of the bot-related code
 client = commands.Bot(command_prefix = "#")
-
 @client.command(pass_context = True)
 async def define(ctx, word):
     for response in request_word(word, dict_url, dict_key):
         await ctx.channel.send(response)
 
+
 @client.command(pass_context = True)
 async def thesaurus(ctx, word):
     for response in request_word(word, thes_url, thes_key):
         await ctx.channel.send(response)
-
 
 client.run(disc_key)
